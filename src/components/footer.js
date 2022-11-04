@@ -53,7 +53,7 @@ export default function Footer() {
 
 const styles = {
   footer: {
-    backgroundColor: '#2B293E',
+    backgroundColor: '#1A202C',
     pt: [6],
     pb: [6],
   },

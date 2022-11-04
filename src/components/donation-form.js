@@ -208,9 +208,9 @@ const styles = {
         width: 0,
       },
       '&.active': {
-        backgroundColor: '#F5F4FF',
+        backgroundColor: 'primary',
         borderColor: 'primary',
-        color: '#7B72F0',
+        color: 'text',
       },
     },
   },

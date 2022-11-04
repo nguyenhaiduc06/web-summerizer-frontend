@@ -64,12 +64,7 @@ const DonationForm = ({ setText }) => {
       process.env.NEXT_PUBLIC_API_ENDPOINT
     );
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content`,
-      {
-        params: {
-          url: state.url,
-        }
-      }
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${state.url}`
     );
     setText(response.data);
   };

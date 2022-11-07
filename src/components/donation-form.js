@@ -14,39 +14,20 @@ import {
 import { rgba } from "polished";
 import { useState } from "react";
 
-import googlePay from "assets/images/icons/google-pay.png";
 import dotPattern from "assets/images/dot-pattern.png";
 
 import axios from "axios";
 
-const presetAmounts = [5, 20, 50, 100];
-
-const DonationForm = ({ setText }) => {
+const SummarizeForm = ({ setText }) => {
   const [state, setState] = useState({
-    donationType: "onetime",
-    amount: 20,
-    joinCommunity: true,
+    source: "viaLink",
     url: "",
+    numOfSentences: "",
   });
-
-  const handleDonationType = (e) => {
+  const handleSource = (e) => {
     setState({
       ...state,
-      donationType: e.target.value,
-    });
-  };
-
-  const handleAmount = (e) => {
-    setState({
-      ...state,
-      amount: Number(e.target.value),
-    });
-  };
-
-  const handleCheckbox = (e) => {
-    setState({
-      ...state,
-      joinCommunity: e.target.checked,
+      source: e.target.value,
     });
   };
 
@@ -57,6 +38,13 @@ const DonationForm = ({ setText }) => {
     });
   };
 
+  const handleNumOfSentences = (e) => {
+    setState({
+      ...state,
+      numOfSentences: e.target.value,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(
@@ -64,75 +52,59 @@ const DonationForm = ({ setText }) => {
       process.env.NEXT_PUBLIC_API_ENDPOINT
     );
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${state.url}`
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${state.url}?${" " + state.numOfSentences}`
     );
     setText(response.data);
   };
 
   return (
     <Box sx={styles.formWrapper}>
-      <Heading sx={styles.title}>Donate for the smile of orphans face</Heading>
+      <Heading sx={styles.title}>Tool Box</Heading>
       <Box as="form" sx={styles.form} onSubmit={handleSubmit}>
         <Box sx={styles.radioGroup}>
           <Label>
             <Radio
-              value="onetime"
-              name="donation-type"
-              defaultChecked={state.donationType === "onetime"}
-              onChange={handleDonationType}
+              value="viaLink"
+              name="source"
+              defaultChecked={state.source === "viaLink"}
+              onChange={handleSource}
             />
-            Donate onetime
+            Via Link
           </Label>
+
           <Label>
             <Radio
-              value="monthly"
-              name="donation-type"
-              defaultChecked={state.donationType === "monthly"}
-              onChange={handleDonationType}
+              value="local"
+              name="source"
+              defaultChecked={state.source === "local"}
+              onChange={handleSource}
             />
-            Every Month
+            Local
           </Label>
         </Box>
-        <Box sx={styles.presetAmounts}>
-          {presetAmounts.map((amount, i) => (
-            <Label key={i} className={state.amount === amount ? "active" : ""}>
-              <Radio
-                value={amount}
-                name="amount"
-                onChange={handleAmount}
-                defaultChecked={state.amount === amount}
-              />
-              ${amount}
-            </Label>
-          ))}
-        </Box>
-        <Box sx={styles.otherAmount}>
-          <Label htmlFor="other-amount" variant="styles.srOnly">
-            Other Amount
+        <Box sx={styles.input}>
+          <Label htmlFor="url" variant="styles.srOnly">
+            Summarize
           </Label>
           <Input
-            id="other-amount"
-            placeholder="Other Amount"
+            id="url"
+            placeholder="Summarize"
             onChange={handleURL}
           />
         </Box>
-        <Box sx={styles.checkbox}>
-          <Label>
-            <Checkbox
-              onChange={handleCheckbox}
-              defaultChecked={state.joinCommunity}
-            />
-            <Text as="span">Want to join with donation community</Text>
+        <Box sx={styles.input}>
+          <Label htmlFor="numOfSentences" variant="styles.srOnly">
+            Summarize
           </Label>
+          <Input
+            id="numOfSentences"
+            placeholder="The willing number of sentences "
+            onChange={handleNumOfSentences}
+          />
         </Box>
         <Box sx={styles.buttonGroup}>
           <Button variant="primary" sx={styles.submit}>
-            Donate Now
-          </Button>
-          <Text as="span">or</Text>
-          <Button variant="muted" sx={styles.googlePay}>
-            <Image width="41" height="40" src={googlePay} alt="googlePay" />
-            Donate with Google Pay
+            Summarize
           </Button>
         </Box>
       </Box>
@@ -140,7 +112,7 @@ const DonationForm = ({ setText }) => {
   );
 };
 
-export default DonationForm;
+export default SummarizeForm;
 
 const styles = {
   formWrapper: {
@@ -197,58 +169,6 @@ const styles = {
       },
     },
   },
-  presetAmounts: {
-    display: "grid",
-    alignItems: "center",
-    marginBottom: 15,
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: ["7px", null, null, 2],
-    mb: [3],
-    label: {
-      color: "textSecondary",
-      border: (t) => `1px solid ${t.colors.borderColor}`,
-      borderRadius: 5,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: [1, 2, null, 3],
-      lineHeight: 1.11,
-      minHeight: [40, null, null, null, 50, 60],
-      padding: 0,
-      textAlign: "center",
-      transition: "0.3s ease-in-out 0s",
-      "> div": {
-        position: "absolute",
-        height: 0,
-        opacity: 0,
-        visibility: "hidden",
-        width: 0,
-      },
-      "&.active": {
-        backgroundColor: "primary",
-        borderColor: "primary",
-        color: "text",
-      },
-    },
-  },
-  otherAmount: {
-    mb: [3, null, null, 4],
-    input: {
-      minHeight: [45, null, null, 60, 50, 60],
-      "::placeholder": {
-        color: rgba("#02073E", 0.35),
-      },
-    },
-  },
-  checkbox: {
-    display: "flex",
-    justifyContent: "center",
-    label: {
-      span: {
-        fontSize: [0, 1],
-      },
-    },
-  },
   buttonGroup: {
     mt: [5, null, null, 8],
     span: {
@@ -264,14 +184,13 @@ const styles = {
       width: "100%",
     },
   },
-  googlePay: {
-    backgroundColor: "#EDF2F7",
-    minHeight: 60,
-    py: 0,
-    fontSize: [1, null, null, 2],
-    img: {
-      mr: 2,
-      maxWidth: [23, 25, null, null, 25, "100%"],
+  input: {
+    mb: [3, null, null, 4],
+    input: {
+      minHeight: [45, null, null, 60, 50, 60],
+      "::placeholder": {
+        color: rgba("#02073E", 0.35),
+      },
     },
   },
 };

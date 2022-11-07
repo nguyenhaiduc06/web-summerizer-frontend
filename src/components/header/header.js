@@ -32,8 +32,8 @@ export default function Header() {
                     <Image src={lock} width="19" height="23" alt="lock icon" />
                     Login
                   </Button>
-                  <Button variant="primary" sx={styles.donateNow}>
-                    Donate Now
+                  <Button variant="primary" sx={styles.summarize}>
+                    Summarize
                   </Button>
                 </Flex>
                 <NavbarDrawer />
@@ -113,7 +113,7 @@ const styles = {
       maxWidth: [12, 15, '100%'],
     },
   },
-  donateNow: {
+  summarize: {
     display: ['none', null, null, null, 'flex'],
     minHeight: [30, null, null, 45],
     px: ['12px', null, null, 4],

@@ -58,8 +58,8 @@ const NavbarDrawer = () => {
             </Box>
           ))}
         </Box>
-        <Button variant="primary" sx={styles.donateNow}>
-          Donate Now
+        <Button variant="primary" sx={styles.summarize}>
+          Summarize
         </Button>
       </Box>
     </Drawer>
@@ -136,7 +136,7 @@ const styles = {
       color: 'primary',
     },
   },
-  donateNow: {
+  summarize: {
     fontSize: 1,
     minHeight: 45,
     margin: 'auto 30px 40px',

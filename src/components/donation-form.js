@@ -27,6 +27,7 @@ const DonationForm = ({ setText }) => {
     amount: 20,
     joinCommunity: true,
     url: "",
+    number: 0,
   });
 
   const handleDonationType = (e) => {
@@ -57,6 +58,13 @@ const DonationForm = ({ setText }) => {
     });
   };
 
+  const handleNumber = (e) => {
+    setState({
+      ...state,
+      number: e.target.value,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(
@@ -64,17 +72,17 @@ const DonationForm = ({ setText }) => {
       process.env.NEXT_PUBLIC_API_ENDPOINT
     );
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${state.url}`
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${state.url+" "+state.number}`
     );
     setText(response.data);
   };
 
   return (
     <Box sx={styles.formWrapper}>
-      <Heading sx={styles.title}>Donate for the smile of orphans face</Heading>
+      <Heading sx={styles.title}>Website content summarization with NLP</Heading>
       <Box as="form" sx={styles.form} onSubmit={handleSubmit}>
-        <Box sx={styles.radioGroup}>
-          <Label>
+        {/*<Box sx={styles.radioGroup}>
+           <Label>
             <Radio
               value="onetime"
               name="donation-type"
@@ -91,7 +99,7 @@ const DonationForm = ({ setText }) => {
               onChange={handleDonationType}
             />
             Every Month
-          </Label>
+          </Label> 
         </Box>
         <Box sx={styles.presetAmounts}>
           {presetAmounts.map((amount, i) => (
@@ -105,18 +113,23 @@ const DonationForm = ({ setText }) => {
               ${amount}
             </Label>
           ))}
-        </Box>
+        </Box> */}
         <Box sx={styles.otherAmount}>
-          <Label htmlFor="other-amount" variant="styles.srOnly">
+          {/* <Label htmlFor="other-amount" variant="styles.srOnly">
             Other Amount
-          </Label>
-          <Input
+          </Label> */}
+          <Input sx={styles.inputLink}
             id="other-amount"
-            placeholder="Other Amount"
+            placeholder="Link article"
             onChange={handleURL}
           />
+          <Input 
+            id="other-amount"
+            placeholder="Number of sentence"
+            onChange={handleNumber}
+          />
         </Box>
-        <Box sx={styles.checkbox}>
+        {/* <Box sx={styles.checkbox}>
           <Label>
             <Checkbox
               onChange={handleCheckbox}
@@ -124,16 +137,16 @@ const DonationForm = ({ setText }) => {
             />
             <Text as="span">Want to join with donation community</Text>
           </Label>
-        </Box>
+        </Box> */}
         <Box sx={styles.buttonGroup}>
           <Button variant="primary" sx={styles.submit}>
-            Donate Now
-          </Button>
+            Summarize
+          {/* </Button>
           <Text as="span">or</Text>
           <Button variant="muted" sx={styles.googlePay}>
             <Image width="41" height="40" src={googlePay} alt="googlePay" />
-            Donate with Google Pay
-          </Button>
+            Donate with Google Pay */}
+          </Button> 
         </Box>
       </Box>
     </Box>
@@ -170,7 +183,7 @@ const styles = {
     color: "textSecondary",
     fontWeight: "bold",
     fontSize: [6, null, null, 12, 8, 11],
-    lineHeight: 1.4,
+    lineHeight: 1.2,
     letterSpacing: "heading",
     mb: [4, null, null, 5],
     textAlign: ["center", null, null, null, "left"],
@@ -239,6 +252,9 @@ const styles = {
         color: rgba("#02073E", 0.35),
       },
     },
+  },
+  inputLink: {
+    marginBottom: 3,
   },
   checkbox: {
     display: "flex",

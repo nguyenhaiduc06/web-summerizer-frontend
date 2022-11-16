@@ -2,6 +2,11 @@
   "name": "@landing/017-next",
   "version": "0.0.1",
   "private": true,
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "scripts": {
     "start": "next dev",
     "dev": "next dev",
@@ -26,10 +31,12 @@
     "react-modal": "^3.12.1",
     "react-on-screen": "^2.1.1",
     "react-parallax": "^3.1.2",
+    "react-scripts": "^4.0.3",
     "react-scroll": "^1.8.1",
     "react-stickynode": "^3.0.4",
     "theme-ui": "^0.3.4",
-    "typeface-dm-sans": "^1.1.13"
+    "typeface-dm-sans": "^1.1.13",
+    "unfluff": "^3.2.0"
   },
   "devDependencies": {
     "imagemin-mozjpeg": "^9.0.0",

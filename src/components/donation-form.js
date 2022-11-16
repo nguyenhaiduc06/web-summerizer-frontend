@@ -12,48 +12,131 @@ import {
   Checkbox,
 } from "theme-ui";
 import { rgba } from "polished";
-import { useState } from "react";
-
-import googlePay from "assets/images/icons/google-pay.png";
+import { useEffect, useState } from "react";
 import dotPattern from "assets/images/dot-pattern.png";
-
 import axios from "axios";
 
-const presetAmounts = [5, 20, 50, 100];
-
-const DonationForm = ({ setText }) => {
-  const [state, setState] = useState({
-    donationType: "onetime",
-    amount: 20,
-    joinCommunity: true,
-    url: "",
+const SummarizeForm = ({ setText }) => {
+  const handleUR = React.useRef();
+  var [state, setState] = useState({
+    source: "viaLink",
+    numOfSentences: "",
   });
 
-  const handleDonationType = (e) => {
+  function handleSource(e) {
     setState({
       ...state,
-      donationType: e.target.value,
-    });
+      source: e.target.value,
+    })
   };
 
-  const handleAmount = (e) => {
-    setState({
-      ...state,
-      amount: Number(e.target.value),
-    });
-  };
-
-  const handleCheckbox = (e) => {
-    setState({
-      ...state,
-      joinCommunity: e.target.checked,
-    });
-  };
+  var [url, setUrl] = useState({
+    url: ""
+  });
 
   const handleURL = (e) => {
+    setUrl({
+      url: e.target.value,
+    });
+  };
+
+  var [file, setFile] = useState({
+    fileContent: "",
+  });
+
+  const handleFile = (e) => {
+    const reader = new FileReader()
+    reader.onerror = error => reject(error)
+    reader.readAsText(e.target.files[0])
+      setFile({
+        fileContent: reader,
+      })
+  };
+
+  var [box, setBox] = useState({
+    inputBox: <Box sx={styles.input}>
+      <Label htmlFor="url" variant="styles.srOnly">
+        Summarize
+      </Label>
+      <Input
+        id="url"
+        type="text"
+        placeholder="Put your url here"
+        onChange={handleURL}
+      />
+    </Box>
+  });
+
+  function handleRadio(e) {
+    if (e.target.value == "viaLink") {
+      setBox({
+        inputBox:
+          <Box sx={styles.input}>
+            <Label htmlFor="url" variant="styles.srOnly">
+              Summarize
+            </Label>
+            <Input
+              id="url"
+              type="text"
+              placeholder="Put your url here"
+              onChange={handleURL}
+            />
+          </Box>
+      });
+    }
+    else if (e.target.value == "local") {
+      setBox({
+        inputBox:
+          <Box sx={styles.input}>
+            <Label htmlFor="files" variant="styles.srOnly">
+              Summarize
+            </Label>
+            <Input
+              id="files"
+              type="file"
+              accept=".txt"
+              size="1"
+              onChange={handleFile}
+            />
+          </Box>
+      });
+    };
+  };
+
+  function setInputFilter(textbox, inputFilter, errMsg) {
+    ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop", "focusout"].forEach(function (event) {
+      textbox.addEventListener(event, function (e) {
+        if (inputFilter(this.value)) {
+          if (["keydown", "mousedown", "focusout"].indexOf(e.type) >= 0) {
+            this.classList.remove("input-error");
+            this.setCustomValidity("");
+          }
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.classList.add("input-error");
+          this.setCustomValidity(errMsg);
+          this.reportValidity();
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        }
+        else {
+          this.value = "";
+        }
+      });
+    });
+  }
+
+
+
+  const handleNumOfSentences = (e) => {
+    setInputFilter(document.getElementById("numOfSentences"), function (value) {
+      return /^\d*\.?\d*$/.test(value);
+    });
     setState({
       ...state,
-      url: e.target.value,
+      numOfSentences: e.target.value,
     });
   };
 
@@ -63,76 +146,57 @@ const DonationForm = ({ setText }) => {
       "🚀 ~ process.env.NEXT_PUBLIC_API_ENDPOINT",
       process.env.NEXT_PUBLIC_API_ENDPOINT
     );
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${state.url}`
-    );
+    if (state.source == "viaLink") {
+      var response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?url=${url.url}&params=${state.source + " " + state.numOfSentences}`
+      );
+    }
+    if (state.source == "local") {
+      var response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/content?data=${file.fileContent.result}&params=${state.source + " " + state.numOfSentences}`
+      );
+    }
     setText(response.data);
   };
 
   return (
     <Box sx={styles.formWrapper}>
-      <Heading sx={styles.title}>Donate for the smile of orphans face</Heading>
+      <Heading sx={styles.title}>Tool Box</Heading>
       <Box as="form" sx={styles.form} onSubmit={handleSubmit}>
         <Box sx={styles.radioGroup}>
           <Label>
             <Radio
-              value="onetime"
-              name="donation-type"
-              defaultChecked={state.donationType === "onetime"}
-              onChange={handleDonationType}
+              value="viaLink"
+              name="source"
+              defaultChecked={state.source === "viaLink"}
+              onChange={e => { handleSource(e); handleRadio(e) }}
             />
-            Donate onetime
+            Via Link
           </Label>
           <Label>
             <Radio
-              value="monthly"
-              name="donation-type"
-              defaultChecked={state.donationType === "monthly"}
-              onChange={handleDonationType}
+              value="local"
+              name="source"
+              onChange={e => { handleSource(e); handleRadio(e) }}
             />
-            Every Month
+            Local
           </Label>
         </Box>
-        <Box sx={styles.presetAmounts}>
-          {presetAmounts.map((amount, i) => (
-            <Label key={i} className={state.amount === amount ? "active" : ""}>
-              <Radio
-                value={amount}
-                name="amount"
-                onChange={handleAmount}
-                defaultChecked={state.amount === amount}
-              />
-              ${amount}
-            </Label>
-          ))}
-        </Box>
-        <Box sx={styles.otherAmount}>
-          <Label htmlFor="other-amount" variant="styles.srOnly">
-            Other Amount
+        {box.inputBox}
+        <Box sx={styles.input}>
+          <Label htmlFor="numOfSentences" variant="styles.srOnly">
+            Summarize
           </Label>
           <Input
-            id="other-amount"
-            placeholder="Other Amount"
-            onChange={handleURL}
+            id="numOfSentences"
+            type="text"
+            placeholder="The willing number of sentences "
+            onChange={handleNumOfSentences}
           />
-        </Box>
-        <Box sx={styles.checkbox}>
-          <Label>
-            <Checkbox
-              onChange={handleCheckbox}
-              defaultChecked={state.joinCommunity}
-            />
-            <Text as="span">Want to join with donation community</Text>
-          </Label>
         </Box>
         <Box sx={styles.buttonGroup}>
           <Button variant="primary" sx={styles.submit}>
-            Donate Now
-          </Button>
-          <Text as="span">or</Text>
-          <Button variant="muted" sx={styles.googlePay}>
-            <Image width="41" height="40" src={googlePay} alt="googlePay" />
-            Donate with Google Pay
+            Summarize
           </Button>
         </Box>
       </Box>
@@ -140,7 +204,7 @@ const DonationForm = ({ setText }) => {
   );
 };
 
-export default DonationForm;
+export default SummarizeForm;
 
 const styles = {
   formWrapper: {
@@ -197,58 +261,6 @@ const styles = {
       },
     },
   },
-  presetAmounts: {
-    display: "grid",
-    alignItems: "center",
-    marginBottom: 15,
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: ["7px", null, null, 2],
-    mb: [3],
-    label: {
-      color: "textSecondary",
-      border: (t) => `1px solid ${t.colors.borderColor}`,
-      borderRadius: 5,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: [1, 2, null, 3],
-      lineHeight: 1.11,
-      minHeight: [40, null, null, null, 50, 60],
-      padding: 0,
-      textAlign: "center",
-      transition: "0.3s ease-in-out 0s",
-      "> div": {
-        position: "absolute",
-        height: 0,
-        opacity: 0,
-        visibility: "hidden",
-        width: 0,
-      },
-      "&.active": {
-        backgroundColor: "primary",
-        borderColor: "primary",
-        color: "text",
-      },
-    },
-  },
-  otherAmount: {
-    mb: [3, null, null, 4],
-    input: {
-      minHeight: [45, null, null, 60, 50, 60],
-      "::placeholder": {
-        color: rgba("#02073E", 0.35),
-      },
-    },
-  },
-  checkbox: {
-    display: "flex",
-    justifyContent: "center",
-    label: {
-      span: {
-        fontSize: [0, 1],
-      },
-    },
-  },
   buttonGroup: {
     mt: [5, null, null, 8],
     span: {
@@ -264,14 +276,13 @@ const styles = {
       width: "100%",
     },
   },
-  googlePay: {
-    backgroundColor: "#EDF2F7",
-    minHeight: 60,
-    py: 0,
-    fontSize: [1, null, null, 2],
-    img: {
-      mr: 2,
-      maxWidth: [23, 25, null, null, 25, "100%"],
+  input: {
+    mb: [3, null, null, 4],
+    input: {
+      minHeight: [45, null, null, 60, 50, 60],
+      "::placeholder": {
+        color: rgba("#02073E", 0.35),
+      },
     },
   },
 };
